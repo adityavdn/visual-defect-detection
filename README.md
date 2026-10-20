@@ -57,6 +57,16 @@ At the chosen threshold, 39 of 40 normal images passed and all 40 defective imag
 
 Uses one category of [MVTec AD](https://www.mvtec.com/company/research/datasets/mvtec-ad). It isn't included in this repo: accept the licence, download the `bottle` category, and place it in Google Drive at `MyDrive/dl-project-09/data/bottle/`. Without it, the notebook generates the synthetic stand-in dataset described above.
 
+The synthetic dataset used for the results is included in `synthetic-data/bottle/` (300 images, 1.3 MB):
+
+| Folder | Images |
+|---|---|
+| `train/good/` | 220 normal (187 fit, last 33 validation) |
+| `test/good/` | 40 normal |
+| `test/defect/` | 40 defective (scratch, chip or stain) |
+
+It was recreated with `python tools/make_synthetic_dataset.py`, using the notebook's drawing code and seed (42). Scoring it with the included model reproduces the exported threshold and the same 1 false alarm and 0 missed defects.
+
 ## Running it
 
 Train in Google Colab with `notebook/training.ipynb`, then unzip the export into `model/`. A trained model is already included.
@@ -83,7 +93,8 @@ python -m pytest tests
 - `templates/`, `static/`: the web page and its styling
 - `model/`: the trained model, settings and threshold
 - `tests/`: automatic checks and two sample images
-- `tools/`: setup check and placeholder-model generator
+- `tools/`: setup check, placeholder-model generator and synthetic-dataset generator
+- `synthetic-data/`: the synthetic dataset the results come from
 - `demo-pictures/`: normal and defective images for a live demo
 - `EXPLAINED.md`: a plain-English walkthrough of every part of the project
 
