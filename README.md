@@ -1,132 +1,92 @@
-# Project 9 — Visual Defect and Anomaly Detection
+# Visual Defect Detection
 
-*Finding faults when you have almost no examples of them*
+Coursework that finds defective products in images using a convolutional autoencoder trained on normal images only, served as a small Flask web app with an error heatmap.
+
+## How it works
+
+1. The autoencoder learns to squeeze and redraw **normal** products only.
+2. Given a defective product, it redraws it as if it were normal.
+3. The difference between the input and the redrawn image is the **anomaly score**.
+4. A score above the **threshold** means ANOMALY, and the heatmap shows where the difference is.
+
+## What the notebook does
+
+1. **Data**: loads one MVTec AD category (`bottle`), or generates a synthetic stand-in dataset if it isn't found
+2. **Split**: keeps 15% of the normal training images aside as a validation set
+3. **Model**: builds a 4-level convolutional autoencoder (128×128 input, 8×8 bottleneck, 856,771 parameters)
+4. **Training**: trains for 40 epochs with Adam (lr 0.001) and MSE loss, saving the best validation checkpoint
+5. **Scoring rules**: compares `mean` (average error) against `max_patch` (worst 16×16 patch) by ROC-AUC
+6. **Threshold**: sets it at the 95th percentile of scores on the normal validation images
+7. **Evaluation**: reports precision, recall, F1 and a confusion matrix at that threshold
+8. **Error analysis**: plots input, reconstruction and error map for the hardest cases
+9. **Export**: saves `best_model.pth`, `config.json` and `classes.json` for the app
+
+## Results
+
+> These results come from the notebook's **synthetic** dataset (grey discs with scratches, chips and stains), because MVTec AD was not available in Drive for this run. They show the pipeline works end to end. They are not a benchmark on real bottles.
 
 | | |
 |---|---|
-| **Problem type** | One-class (unsupervised) anomaly detection |
-| **Data** | MVTec AD — one category. Accept the licence and download it yourselves |
-| **Model** | Convolutional autoencoder trained on normal images only |
-| **Headline metrics** | ROC-AUC, then precision/recall/F1 at your threshold |
+| Training images (normal) | 187 fit, 33 validation |
+| Test images | 40 normal, 40 defective |
+| ROC-AUC (`mean`) | 1.000 |
+| ROC-AUC (`max_patch`) | 1.000 |
+| Deployed rule | `mean` |
+| Threshold | 0.00035 (95th percentile of normal validation scores) |
+| Precision | 0.976 |
+| Recall | 1.000 |
+| F1 | 0.988 |
+| False alarms | 1 of 40 normal |
+| Missed defects | 0 of 40 defective |
 
-Read your full brief in **Part D of the student handbook**. This file covers the code.
+Training and validation loss fell together from about 0.08 to 0.0003, so the model wasn't overfitting:
 
----
+![Training loss](guide-images/1-training-loss.png)
 
-## Quick start — before you have trained anything
+At the chosen threshold, 39 of 40 normal images passed and all 40 defective images were caught:
 
-You can have this application running in about five minutes, with placeholder
-weights. Do this on day one: it lets the Application Lead build the entire
-interface while the model is still training.
+![Confusion matrix](guide-images/3-confusion-matrix.png)
+
+**Error analysis**
+- The lowest-scoring defects were soft stains. They were still caught, and the heatmap highlights the stain itself.
+- The highest-scoring normal images light up only along the disc's outline, because the autoencoder redraws sharp edges slightly blurred.
+
+![Error analysis](guide-images/4-missed-defects.png)
+
+## Data
+
+Uses one category of [MVTec AD](https://www.mvtec.com/company/research/datasets/mvtec-ad). It isn't included in this repo: accept the licence, download the `bottle` category, and place it in Google Drive at `MyDrive/dl-project-09/data/bottle/`. Without it, the notebook generates the synthetic stand-in dataset described above.
+
+## Running it
+
+Train in Google Colab with `notebook/training.ipynb`, then unzip the export into `model/`. A trained model is already included.
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate            # Windows: .venv\Scripts\activate
+source .venv/bin/activate
 pip install -r requirements.txt
-
-python tools/make_dummy_artifacts.py   # placeholder model + test fixtures
-python tools/check_setup.py            # verifies everything end to end
-python app.py                          # http://127.0.0.1:5000
+python tools/check_setup.py
+python app.py
 ```
 
-The page footer will say **untrained placeholder weights**. Predictions are
-meaningless until you replace `model/` with your Colab export — which is
-exactly the point.
+Open http://127.0.0.1:5000 and upload a picture from `demo-pictures/`. Run the tests with:
 
-> Install the CPU build of PyTorch to keep the environment small:
-> `pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu`
-
----
-
-## The two-week path
-
-| When | Do this |
-|---|---|
-| Lab 1 | Open `notebook/training.ipynb` in Colab. Run it end to end on the placeholder data so you know the pipeline works. Agree roles and the artefact contract. |
-| Week 1 | Collect or load your real data. Train. Evaluate. Export. |
-| Lab 2 | Unzip the export into `model/`, run `python tools/check_setup.py`, complete the parity check, connect and test the interface. |
-| Week 2 | Error analysis, README, rehearsal **with the network disconnected**, backup video. |
-
----
-
-## What your group must change
-
-1. Choose your category and justify it.
-2. Derive the threshold from a percentile of normal validation scores, and justify the percentile.
-3. Compare two scoring rules (`mean` against `max_patch`) and report which separates better.
-
-Everything else is scaffolding. Marks come from these decisions and your
-ability to defend them — not from the code you were handed.
-
----
-
-## The artefact contract
-
-Your Colab export must produce exactly these files in `model/`:
-
-- best_model.pth
-- classes.json
-- config.json — input size, scoring rule, **anomaly threshold**
-
-`src/` reads every parameter from `config.json`. **Never hard-code a value that
-training decided** — a number typed in two places will eventually disagree with
-itself, and the application will then produce confidently wrong answers without
-raising a single error.
-
-### The parity check — do not skip this
-
-Before Lab 2 ends: run three examples through the notebook, record the output
-probabilities, and check that your local `predict()` reproduces them to two or
-three decimal places. `tests/test_inference.py` has a place to paste them.
-This one check catches most integration bugs.
-
----
+```bash
+python -m pytest tests
+```
 
 ## Files
 
-```
-app.py                      Flask routes only — no model code
-src/artifacts.py            loads config.json / classes.json (identical in all projects)
-src/model.py                builds the architecture from config
-src/preprocessing.py        the SAME transforms as training
-src/inference.py            load() and predict() — the boundary of the ML system
-src/webio.py                upload validation and image encoding
-templates/index.html        extends templates/_base.html
-static/css/style.css        shared stylesheet, readable when projected
-model/                      your exported artefacts go here
-notebook/training.ipynb     the Colab notebook
-tools/make_dummy_artifacts.py   placeholder artefacts and fixtures
-tools/check_setup.py        readiness check — run this first when something breaks
-tests/test_inference.py     smoke tests and the parity check
-```
-
----
-
-## At the showcase
-
-1. Run one unseen normal image and one unseen defective image.
-2. Show the heatmap — it is what makes this demonstration memorable.
-3. Explain how the threshold was chosen, and what would change if no defect could be allowed to escape.
-
----
-
-## Troubleshooting
-
-**Everything scores as normal**  
-The bottleneck is too wide: the autoencoder is copying pixels and rebuilding defects perfectly. Reduce `latent_channels`.
-
-**Everything scores as anomalous**  
-Under-trained, or the threshold came from the wrong distribution. It must come from held-out NORMAL images.
-
-**The heatmap lights up on shadows**  
-A real finding about what the model has learned. Put it in your error analysis.
-
-For anything else, run `python tools/check_setup.py` first — it reports the
-first thing that is wrong, in order. The handbook's Part G has the full
-troubleshooting table.
-
----
+- `notebook/training.ipynb`: training, evaluation and export, with outputs
+- `app.py`: the Flask web app
+- `src/`: model, preprocessing, inference, heatmap and upload handling
+- `templates/`, `static/`: the web page and its styling
+- `model/`: the trained model, settings and threshold
+- `tests/`: automatic checks and two sample images
+- `tools/`: setup check and placeholder-model generator
+- `demo-pictures/`: normal and defective images for a live demo
+- `EXPLAINED.md`: a plain-English walkthrough of every part of the project
 
 ## Responsible use
 
-Automated inspection displaces human judgement. State what happens to a flagged item and who is accountable, and note that thresholds do not transfer between products or lighting.
+This is an educational prototype. A flagged item should be checked by a person, and a threshold set on one product or lighting setup doesn't transfer to another.
