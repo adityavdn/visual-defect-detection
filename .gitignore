@@ -1,0 +1,27 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# Runtime
+uploads/
+instance/
+*.log
+
+# Personal and collected data — NEVER commit these.
+# Faces, voices and any other data collected from people stay out of Git.
+data/
+datasets/
+raw/
+
+# Large artefacts: commit these only if they are small (a few MB).
+# Otherwise share them through your group's institutional drive.
+# model/*.pth
+
+# Local tools
+.DS_Store
+.pytest_cache/
+Icon?
+.claude/

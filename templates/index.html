@@ -1,0 +1,56 @@
+{% extends "_base.html" %}
+
+{% block title %}Visual Inspection{% endblock %}
+{% block heading %}Visual Defect Inspection{% endblock %}
+{% block strapline %}One-class anomaly detection by reconstruction error — MSc student project{% endblock %}
+
+{% block scope %}
+<div class="scope">
+  <strong>What this is.</strong> An autoencoder trained on normal examples of one product category
+  only. It has never been shown a labelled defect. Replace this sentence with your category, the
+  number of normal training images, and the percentile your threshold came from.
+</div>
+{% endblock %}
+
+{% block input_heading %}Choose a product image{% endblock %}
+
+{% block input_form %}
+<form method="post" enctype="multipart/form-data">
+  <label for="image">Image file</label>
+  <input type="file" name="image" id="image" accept="image/*" required>
+  <p class="hint">Use an image from the held-out test set — one normal, one defective.</p>
+  <button type="submit">Inspect</button>
+</form>
+{% endblock %}
+
+{% block result_body %}
+<p class="verdict {{ 'positive' if result.anomalous else 'negative' }}">{{ result.label }}</p>
+<p class="confidence">
+  Anomaly score {{ "%.5f"|format(result.score) }} against threshold
+  {{ "%.5f"|format(result.threshold) }} ({{ "%.2f"|format(result.ratio) }}× the threshold),
+  scoring rule <strong>{{ result.scoring_rule }}</strong>
+</p>
+
+{% if views %}
+<div class="media-grid">
+  <figure>
+    <img src="{{ views.original }}" alt="The input image">
+    <figcaption>Input, as the model received it</figcaption>
+  </figure>
+  <figure>
+    <img src="{{ views.reconstruction }}" alt="The autoencoder's reconstruction">
+    <figcaption>Reconstruction — what the model expected a normal product to look like</figcaption>
+  </figure>
+  <figure>
+    <img src="{{ views.heatmap }}" alt="Reconstruction error heatmap">
+    <figcaption>Error heatmap — bright regions are where reconstruction failed</figcaption>
+  </figure>
+</div>
+{% endif %}
+
+<p class="hint">
+  Compare the reconstruction with the input. Where the model has quietly "repaired" a defect, the
+  heatmap lights up. Where it lights up on a shadow or an edge instead, you have found a false
+  alarm worth explaining.
+</p>
+{% endblock %}

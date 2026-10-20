@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Deep Learning Application{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>{% block heading %}Deep Learning Application{% endblock %}</h1>
+    <p>{% block strapline %}MSc student project{% endblock %}</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  {% block scope %}{% endblock %}
+
+  {% if error %}
+    <div class="error"><strong>Something went wrong.</strong> {{ error }}</div>
+  {% endif %}
+
+  <div class="card">
+    <h2>{% block input_heading %}Input{% endblock %}</h2>
+    {% block input_form %}{% endblock %}
+  </div>
+
+  {% if result %}
+    <div class="card result">
+      <h2>Result</h2>
+      {% block result_body %}{% endblock %}
+    </div>
+  {% endif %}
+
+  {% block extra %}{% endblock %}
+
+  <footer>
+    <ul class="meta">
+      <li><strong>Model:</strong> {{ meta.architecture }}</li>
+      <li><strong>Trained:</strong> {{ meta.trained_on }}</li>
+      <li><strong>Runs on:</strong> CPU</li>
+      {% if meta.untrained %}<li><strong>⚠ Untrained placeholder weights</strong></li>{% endif %}
+    </ul>
+    <p>{% block footnote %}Educational prototype built for an MSc teaching module. Not validated for
+      operational use.{% endblock %}</p>
+  </footer>
+
+</div>
+</body>
+</html>

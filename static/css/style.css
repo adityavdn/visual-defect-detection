@@ -1,0 +1,183 @@
+/* ------------------------------------------------------------------
+   Deep Learning Applications — shared interface stylesheet
+   Designed to be readable when projected: large type, high contrast.
+   Edit the two colours in :root to make the interface your own.
+   ------------------------------------------------------------------ */
+
+:root {
+  --navy:   #123b5c;
+  --teal:   #0e7c86;
+  --ink:    #1f2a33;
+  --muted:  #5a6b7b;
+  --line:   #d6dce4;
+  --panel:  #f5f7fa;
+  --ok:     #1e6f4a;
+  --warn:   #b4621a;
+  --bad:    #a83232;
+  --radius: 10px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0 1rem 4rem;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--ink);
+  background: #fff;
+}
+
+.wrap { max-width: 860px; margin: 0 auto; }
+
+/* ---------------------------------------------------------- header */
+header {
+  border-bottom: 3px solid var(--teal);
+  margin: 0 -1rem 1.75rem;
+  padding: 1.75rem 1rem 1.25rem;
+  background: var(--navy);
+  color: #fff;
+}
+header .wrap { max-width: 860px; }
+header h1 { margin: 0 0 .35rem; font-size: 1.8rem; letter-spacing: .01em; }
+header p  { margin: 0; color: #bfd7e4; font-size: 1rem; }
+
+/* ----------------------------------------------------------- cards */
+.card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  background: #fff;
+}
+.card h2 { margin: 0 0 1rem; font-size: 1.2rem; color: var(--navy); }
+
+/* ----------------------------------------------------------- forms */
+label { display: block; font-weight: 600; margin-bottom: .4rem; }
+
+input[type="file"], input[type="text"], select, textarea {
+  width: 100%;
+  padding: .7rem;
+  font-size: 1rem;
+  font-family: inherit;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+}
+textarea { min-height: 8.5rem; resize: vertical; }
+
+.hint { font-size: .9rem; color: var(--muted); margin: .45rem 0 0; }
+
+button, .button {
+  margin-top: 1.1rem;
+  padding: .75rem 1.6rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  font-family: inherit;
+  color: #fff;
+  background: var(--teal);
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+button:hover { background: #0b656e; }
+button.secondary { background: var(--muted); }
+
+.examples { margin-top: 1rem; }
+.examples button {
+  margin: .3rem .3rem 0 0;
+  padding: .4rem .8rem;
+  font-size: .9rem;
+  font-weight: 500;
+  background: var(--panel);
+  color: var(--navy);
+  border: 1px solid var(--line);
+}
+.examples button:hover { background: #e8edf3; }
+
+/* --------------------------------------------------------- results */
+.result { border-left: 6px solid var(--teal); background: var(--panel); }
+
+.verdict {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--navy);
+  margin: 0 0 .3rem;
+  line-height: 1.2;
+}
+.verdict.unknown  { color: var(--warn); }
+.verdict.positive { color: var(--bad); }
+.verdict.negative { color: var(--ok); }
+
+.confidence { font-size: 1.05rem; color: var(--muted); margin: 0 0 1.2rem; }
+
+/* confidence bars for the ranked alternatives */
+.bars { margin: 0; padding: 0; list-style: none; }
+.bars li { margin-bottom: .55rem; }
+.bars .row { display: flex; justify-content: space-between; font-size: .95rem; margin-bottom: .2rem; }
+.bars .track { height: 9px; background: #e2e8ef; border-radius: 5px; overflow: hidden; }
+.bars .fill  { height: 100%; background: var(--teal); }
+.bars li:first-child .fill { background: var(--navy); }
+
+/* ------------------------------------------------------- media out */
+figure { margin: 0 0 1rem; }
+figure img { max-width: 100%; border: 1px solid var(--line); border-radius: 6px; display: block; }
+figcaption { font-size: .88rem; color: var(--muted); margin-top: .4rem; }
+
+.media-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; }
+
+audio { width: 100%; margin-bottom: 1rem; }
+
+/* ---------------------------------------------------------- tables */
+table { width: 100%; border-collapse: collapse; font-size: .95rem; }
+th, td { padding: .55rem .6rem; border-bottom: 1px solid var(--line); text-align: left; }
+th { background: var(--navy); color: #fff; font-weight: 600; }
+tbody tr:nth-child(even) { background: var(--panel); }
+td.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* -------------------------------------------------------- messages */
+.error {
+  border-left: 6px solid var(--bad);
+  background: #fdf0ef;
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius);
+  margin-bottom: 1.5rem;
+}
+.error strong { color: var(--bad); }
+
+.scope {
+  border-left: 6px solid var(--warn);
+  background: #fdf5ec;
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius);
+  font-size: .95rem;
+  margin-bottom: 1.5rem;
+}
+
+.disclaimer {
+  border: 2px solid var(--bad);
+  background: #fdf0ef;
+  color: #7a1f1f;
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius);
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+/* ---------------------------------------------------------- footer */
+footer {
+  margin-top: 2.5rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--line);
+  font-size: .87rem;
+  color: var(--muted);
+}
+footer code { background: var(--panel); padding: .1rem .35rem; border-radius: 4px; }
+
+.meta { display: flex; flex-wrap: wrap; gap: .4rem 1.5rem; margin: 0; padding: 0; list-style: none; }
+
+@media (max-width: 600px) {
+  body { font-size: 16px; }
+  .verdict { font-size: 1.5rem; }
+}

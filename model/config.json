@@ -1,0 +1,18 @@
+{
+  "task": "anomaly_detection",
+  "architecture": "conv_autoencoder",
+  "category": "bottle",
+  "input_size": [
+    128,
+    128
+  ],
+  "base_channels": 32,
+  "latent_channels": 128,
+  "depth": 4,
+  "scoring_rule": "mean",
+  "patch_size": 16,
+  "anomaly_threshold": 0.0003534382325597107,
+  "trained_on": "2026-10-16",
+  "threshold_rationale": "95th percentile of reconstruction error on 33 held-out NORMAL images, implying roughly a 5% false-alarm rate on good product.",
+  "notes": "{\"roc_auc\": 1.0, \"precision\": 0.97561, \"recall\": 1.0, \"f1\": 0.98765, \"false_alarms\": 1, \"missed_defects\": 0, \"n_normal\": 40, \"n_defect\": 40}"
+}
